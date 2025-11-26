@@ -1,0 +1,11 @@
+server:
+  port: 8082
+
+amq:
+  broker-name: artemis-node2
+  mqtt-port: 1885
+  core-port: 61618
+  host: localhost
+  data-directory: target/artemis-data-node2
+  cluster-enabled: true
+  cluster-connection-name: artemis-cluster

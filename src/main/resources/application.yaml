@@ -1,0 +1,37 @@
+spring:
+  application:
+    admin:
+      enabled: false
+    name: artemis-leak-repro
+  jmx:
+    enabled: false
+  artemis:
+    pool:
+      enabled: false
+    embedded:
+      enabled: true
+      persistent: false
+
+server:
+  port: 8080
+
+amq:
+  broker-name: artemis-broker
+  mqtt-port: 1883
+  core-port: 61616
+  host: localhost
+  data-directory: target/artemis-data
+  cluster-enabled: true
+  cluster-connection-name: artemis-cluster
+
+repro:
+  address-count: 1000
+  core-consumer-enabled: true
+
+logging:
+  pattern:
+    console: "%d{YYYY-MM-dd HH:mm:ss.SSS z} %c:%L - %m%n"
+  level:
+    org:
+      apache:
+        activemq: off
