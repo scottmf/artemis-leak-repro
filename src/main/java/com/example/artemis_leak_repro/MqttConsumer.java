@@ -84,7 +84,9 @@ public class MqttConsumer {
                 .qos(com.hivemq.client.mqtt.datatypes.MqttQos.AT_LEAST_ONCE) // QoS 1
                 .callback(publish -> {
                     int count = messageCount.incrementAndGet();
-                    log.info("[MQTT Consumer] Received message #{} from topic: {}", count, publish.getTopic());
+                    if ((count % reproProperties.getAddressCount()) == 0) {
+                        log.info("[MQTT Consumer] Received {} messages", count);
+                    }
                 })
                 .send()
                 .whenComplete((subAck, throwable) -> {
@@ -99,10 +101,6 @@ public class MqttConsumer {
         // Store as blocking client for cleanup
         consumers.add(client.toBlocking());
         log.info("Consumer setup complete");
-    }
-
-    public int getMessageCount() {
-        return messageCount.get();
     }
 
     private void waitForBroker() throws InterruptedException {

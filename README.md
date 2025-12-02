@@ -38,6 +38,75 @@ This causes a leak in `PostOfficeImpl.duplicateIDCache`, `PagingManagerImpl.stor
    State between runtimes should match unless configuration is changed.
 2. BRIDGE caches are not cleaned up.  This fix is reflected in [#6085](https://github.com/apache/activemq-artemis/pull/6085)
 
+### Run with 2.44.0
+Release demonstrates both these issues with version 2.44.0.  It is interesting to note the differences between the throughput..
+
+Final diagnostic after a 5m run
+```
+$ timeout 5m ./gradlew bootRun
+...
+. 5m later ..
+...
+=========================
+===== artemis-node2 =====
+=========================
+Cluster Nodes:        2
+Addresses:        23983 total, 23978 publish/* addresses       <<<< ADDRESSES are only purged after restart, though they are non-durable / temporary / auto-delete=true
+Queues:               6 total,     0 publish/# wildcard queues
+DuplicateIDCache: 11989 total, 11989 BRIDGE caches             <<<< BRIDGE caches populated from the journal for temporary / non-durable / auto-delete=true addresses
+PagingStores:     23984 total, 23978 publish/* stores
+Journal Size:        29 MB (target/artemis-data-node2)
+==========================
+
+=========================
+===== artemis-node1 =====
+=========================
+Cluster Nodes:        2
+Addresses:        24184 total, 24179 publish/* addresses       <<<< ADDRESSES are only purged after restart, though they are non-durable / temporary / auto-delete=true
+Queues:               6 total,     0 publish/# wildcard queues
+DuplicateIDCache: 12190 total, 12190 BRIDGE caches             <<<< BRIDGE caches populated from the journal for temporary / non-durable / auto-delete=true addresses
+PagingStores:     24186 total, 24180 publish/* stores
+Journal Size:        21 MB (target/artemis-data-node1)
+==========================
+```
+
+### Run with 2.45.0-SNAPSHOT overlayed with 2ad4ba0e4
+2ad4ba0e4 from [#6085](https://github.com/apache/activemq-artemis/pull/6085) fixes the address cleanup AND the BRIDGE cache cleanup
+
+Final diagnostic after a 5m run
+```
+$ timeout 5m ./gradlew bootRun -PartemisVersion=2.45.0-SNAPSHOT
+...
+. 5m later ..
+...
+=========================
+===== artemis-node2 =====
+=========================
+Cluster Nodes:        2
+Addresses:           27 total,    22 publish/* addresses       <<<< ADDRESSES are properly cleaned up
+Queues:               6 total,     0 publish/# wildcard queues
+DuplicateIDCache:    21 total,    21 BRIDGE caches             <<<< BRIDGE caches are cleaned up
+PagingStores:        27 total,    22 publish/* stores
+Journal Size:        24 MB (target/artemis-data-node2)
+==========================
+
+=========================
+===== artemis-node1 =====
+=========================
+Cluster Nodes:        2
+Addresses:           92 total,    87 publish/* addresses       <<<< ADDRESSES are properly cleaned up
+Queues:               6 total,     0 publish/# wildcard queues
+DuplicateIDCache:    86 total,    86 BRIDGE caches             <<<< BRIDGE caches are cleaned up
+PagingStores:        92 total,    87 publish/* stores
+Journal Size:        16 MB (target/artemis-data-node1)
+==========================
+```
+
+
+## Previous Runs based on PR commit f5f6e61d
+
+This is old data and remains intact for reference purposes
+
 ### Run 1
 
 #### Last diagnostic of the first run

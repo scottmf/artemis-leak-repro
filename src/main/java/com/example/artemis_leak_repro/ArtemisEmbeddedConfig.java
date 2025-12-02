@@ -40,6 +40,7 @@ public class ArtemisEmbeddedConfig {
 
             config.setJournalType(JournalType.NIO);
             config.setJournalFileSize(1024 * 1024);
+            config.setGlobalMaxSize(10 * 1024 * 1024);
             config.setJournalMinFiles(2);
             config.setJournalCompactMinFiles(0);
             config.setJournalCompactPercentage(0);

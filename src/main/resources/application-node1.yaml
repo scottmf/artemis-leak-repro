@@ -9,3 +9,6 @@ amq:
   data-directory: target/artemis-data-node1
   cluster-enabled: true
   cluster-connection-name: artemis-cluster
+
+repro:
+  core-consumer-enabled: true
